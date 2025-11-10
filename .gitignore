@@ -1,0 +1,271 @@
+# ============================================================================
+# Node.js
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================================================================
+# Electron
+# ============================================================================
+out/
+dist/
+.webpack/
+*.log
+
+# Electron Forge output
+.forge/
+
+# ============================================================================
+# TypeScript
+# ============================================================================
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+
+# ============================================================================
+# Build artifacts
+# ============================================================================
+build/
+release/
+*.AppImage
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+*.dmg
+*.exe
+
+# ============================================================================
+# OS-specific
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+*.vsix
+
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+!*.svg
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+[._]*.un~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+*_flymake.*
+/eshell/history
+/eshell/lastdir
+/elpa/
+*.rel
+/auto/
+.cask/
+dist/
+flycheck_*.el
+/server/
+.projectile
+.dir-locals.el
+/network-security.data
+
+# ============================================================================
+# Application-specific
+# ============================================================================
+
+# User data and cache
+/userData/
+/cache/
+window-state.json
+
+# Session data
+/sessions/
+*.session
+
+# Logs
+logs/
+*.log
+combined.log
+error.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Secrets and credentials
+secrets.json
+credentials.json
+*.pem
+*.key
+*.cert
+
+# ============================================================================
+# Testing
+# ============================================================================
+coverage/
+.nyc_output/
+*.lcov
+.cache/
+
+# Jest
+jest_*.json
+
+# ============================================================================
+# Package managers
+# ============================================================================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# ============================================================================
+# Temporary files
+# ============================================================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+
+# ============================================================================
+# Debugging
+# ============================================================================
+.vscode-test/
+*.cpuprofile
+*.heapsnapshot
+*.heaptimeline
+
+# ============================================================================
+# Electron-specific user data
+# ============================================================================
+# Widevine CDM (if bundled)
+/resources/widevine/
+
+# Apple Music session data
+/applemusic-cache/
+/applemusic-data/
+
+# ============================================================================
+# Optional: Uncomment if you want to ignore specific assets
+# ============================================================================
+# /assets/*.png
+# /assets/*.jpg
+# /assets/*.ico
+
+# ============================================================================
+# Webpack
+# ============================================================================
+.webpack/
+webpack-stats.json
+
+# ============================================================================
+# ESLint
+# ============================================================================
+.eslintcache
+
+# ============================================================================
+# Optional: macOS specific for Electron
+# ============================================================================
+# mas-builds/
+
+# ============================================================================
+# Electron Builder
+# ============================================================================
+/dist_electron/
+/release-builds/

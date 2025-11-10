@@ -18,6 +18,7 @@ import {
 import { logger } from "./utils/logger";
 import { createClickScript } from "./utils/selectors";
 import { detectRegion } from "./utils/region";
+import { generateAutoPlayScript, AutoPlayResult } from "./utils/autoplay";
 
 // Declare main_window for webpack entry point
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -672,99 +673,35 @@ async function createMusicView(): Promise<void> {
           `🎵 Detected ${contentType} navigation, attempting auto-play...`,
         );
 
-        // ✅ FIXED: Smart polling instead of arbitrary timeout
-        // Wait for content to load with intelligent DOM polling
+        // ✅ FIXED: Increased initial delay and use new auto-play utility
+        // Wait longer for content to render before attempting auto-play
         setTimeout(async () => {
           try {
             const autoPlayResult = await musicView?.webContents
-              .executeJavaScript(`
-              (async function() {
-                try {
-                  // Wait for tracks to load (up to 10 seconds with 250ms intervals)
-                  let attempts = 0;
-                  const maxAttempts = 40; // 10 seconds total
-                  let firstTrack = null;
-
-                  while (attempts < maxAttempts && !firstTrack) {
-                    // Try multiple selectors for first track
-                    firstTrack =
-                      document.querySelector('[data-testid="track-list"] [role="button"]:first-child') ||
-                      document.querySelector('.songs-list-row:first-child [role="button"]') ||
-                      document.querySelector('.tracklist-item:first-child [role="button"]') ||
-                      document.querySelector('[data-index="0"][role="button"]') ||
-                      document.querySelector('.song-row:first-child') ||
-                      document.querySelector('[class*="track"]:first-child [role="button"]');
-
-                    if (!firstTrack) {
-                      await new Promise(resolve => setTimeout(resolve, 250));
-                      attempts++;
-                    }
-                  }
-
-                  if (firstTrack) {
-                    console.log('✅ Found first track, simulating click...');
-
-                    // Simulate user interaction to satisfy autoplay policy
-                    const clickEvent = new MouseEvent('click', {
-                      view: window,
-                      bubbles: true,
-                      cancelable: true,
-                      clientX: 100,
-                      clientY: 100
-                    });
-
-                    firstTrack.click();
-
-                    // Also try to trigger play button if clicking track didn't work
-                    setTimeout(() => {
-                      const playBtn = document.querySelector(
-                        '[data-testid="play-pause-button"]'
-                      );
-                      if (playBtn && playBtn.getAttribute('aria-label')?.includes('Play')) {
-                        playBtn.click();
-                        console.log('✅ Also clicked global play button');
-                      }
-                    }, 500);
-
-                    return {
-                      success: true,
-                      message: 'First track clicked successfully',
-                      trackFound: true
-                    };
-                  } else {
-                    console.warn('⚠️ Could not find first track element after 10 seconds');
-                    return {
-                      success: false,
-                      message: 'First track not found after 10 seconds',
-                      trackFound: false
-                    };
-                  }
-                } catch (error) {
-                  console.error('❌ Auto-play error:', error);
-                  return {
-                    success: false,
-                    message: error.message,
-                    error: true
-                  };
-                }
-              })();
-            `);
+              .executeJavaScript(generateAutoPlayScript()) as AutoPlayResult;
 
             if (autoPlayResult?.success) {
               logger.log(
                 `✅ Auto-play successful for ${contentType}:`,
                 autoPlayResult.message,
               );
+              if (autoPlayResult.selector) {
+                logger.log(`   Using selector: ${autoPlayResult.selector}`);
+              }
             } else {
               logger.warn(
                 `⚠️  Auto-play failed for ${contentType}:`,
                 autoPlayResult?.message,
               );
+              // Log diagnostics if available
+              if (autoPlayResult?.diagnostics) {
+                logger.log("   Diagnostics:", autoPlayResult.diagnostics);
+              }
             }
           } catch (error) {
             logger.error("❌ Failed to execute auto-play script:", error);
           }
-        }, 500); // Initial delay reduced to 500ms before smart polling begins
+        }, 1500); // Increased from 500ms to 1500ms for better content loading
       }
     };
     listeners['did-navigate-in-page'] = didNavigateInPageListener;

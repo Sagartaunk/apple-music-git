@@ -39,17 +39,22 @@ export const APPLE_MUSIC_SELECTORS = {
 
 /**
  * Generate JavaScript code to click an element by selector
+ * Properly escapes both single quotes and backslashes for security
  */
 export function createClickScript(selectorKey: keyof typeof APPLE_MUSIC_SELECTORS, actionName: string): string {
   const selector = APPLE_MUSIC_SELECTORS[selectorKey];
+  // Escape backslashes first, then single quotes
+  const escapedSelector = selector.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const escapedActionName = actionName.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  
   return `
     (function() {
-      const element = document.querySelector('${selector.replace(/'/g, "\\'")}');
+      const element = document.querySelector('${escapedSelector}');
       if (element) {
         element.click();
-        console.log('${actionName} clicked');
+        console.log('${escapedActionName} clicked');
       } else {
-        console.warn('${actionName} button not found');
+        console.warn('${escapedActionName} button not found');
       }
     })();
   `;

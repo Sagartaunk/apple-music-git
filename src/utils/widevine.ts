@@ -56,7 +56,7 @@ export function checkWidevineStatus(): WidevineStatus {
 
   if (fs.existsSync(widevinePath)) {
     try {
-      const stats = fs.statSync(widevinePath);
+      fs.statSync(widevinePath);
       return {
         available: true,
         path: widevinePath,

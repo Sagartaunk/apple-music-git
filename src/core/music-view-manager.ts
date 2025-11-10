@@ -93,7 +93,8 @@ export class MusicViewManager {
       this.cookieChangeListener = (event: unknown, cookie: unknown, cause: unknown, removed: boolean) => {
         if (!removed && typeof cookie === 'object' && cookie !== null && 'domain' in cookie && 'name' in cookie) {
           const cookieObj = cookie as { domain?: string; name: string };
-          if (cookieObj.domain?.includes("apple.com")) {
+          // Secure check: domain must end with .apple.com or be exactly apple.com
+          if (cookieObj.domain?.endsWith('.apple.com') || cookieObj.domain === 'apple.com') {
             logger.log("🍪 Apple cookie updated:", cookieObj.name, "→", cause);
           }
         }
@@ -186,12 +187,19 @@ export class MusicViewManager {
     const didNavigateListener = (event: unknown, url: string) => {
       logger.log("🧭 Music view navigated to:", url);
 
-      if (url.includes("sign-in") || url.includes("auth")) {
-        logger.log("🔑 Authentication page detected");
-      }
+      try {
+        const urlObj = new URL(url);
+        // Secure check: verify hostname ends with apple.com
+        if ((urlObj.hostname === 'music.apple.com' || urlObj.hostname.endsWith('.apple.com')) &&
+            (url.includes("sign-in") || url.includes("auth"))) {
+          logger.log("🔑 Authentication page detected");
+        }
 
-      if (url.includes("music.apple.com") && !url.includes("sign-in")) {
-        logger.log("✅ On main Apple Music page");
+        if (urlObj.hostname === 'music.apple.com' && !url.includes("sign-in")) {
+          logger.log("✅ On main Apple Music page");
+        }
+      } catch (error) {
+        logger.warn("⚠️  Invalid URL in navigation:", url);
       }
     };
     listeners['did-navigate'] = didNavigateListener;
@@ -209,18 +217,34 @@ export class MusicViewManager {
     this.musicView.webContents.setWindowOpenHandler(({ url }) => {
       logger.log("🔗 Window open requested:", url);
 
-      if (url.startsWith("https://music.apple.com")) {
-        return { action: "allow" };
-      }
+      try {
+        const urlObj = new URL(url);
+        
+        // Secure check: only allow specific Apple domains
+        if (urlObj.protocol === 'https:' && 
+            (urlObj.hostname === 'music.apple.com' || 
+             urlObj.hostname.endsWith('.music.apple.com'))) {
+          return { action: "allow" };
+        }
 
-      if (url.includes("apple.com")) {
-        return { action: "allow" };
-      }
+        // Allow other Apple authentication domains
+        if (urlObj.protocol === 'https:' &&
+            (urlObj.hostname === 'appleid.apple.com' ||
+             urlObj.hostname.endsWith('.appleid.apple.com') ||
+             urlObj.hostname === 'apple.com' ||
+             urlObj.hostname.endsWith('.apple.com'))) {
+          return { action: "allow" };
+        }
 
-      shell.openExternal(url).catch((err) => {
-        logger.error("❌ Failed to open external link:", err);
-      });
-      return { action: "deny" };
+        // Open non-Apple URLs in external browser
+        shell.openExternal(url).catch((err) => {
+          logger.error("❌ Failed to open external link:", err);
+        });
+        return { action: "deny" };
+      } catch (error) {
+        logger.warn("⚠️  Invalid URL in window open:", url);
+        return { action: "deny" };
+      }
     });
 
     // Certificate error monitoring

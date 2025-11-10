@@ -96,9 +96,13 @@ class ControlsManager {
 
   private async handlePlayPause(): Promise<void> {
     try {
-      await window.electronAPI.playPause();
-      this.isPlaying = !this.isPlaying;
-      this.updatePlayPauseIcon();
+      const result = await window.electronAPI.playPause();
+      if (result && typeof result === 'object' && 'success' in result && result.success) {
+        this.isPlaying = !this.isPlaying;
+        this.updatePlayPauseIcon();
+      } else {
+        console.warn('Play/Pause returned error:', result);
+      }
     } catch (error) {
       console.error('Play/Pause failed:', error);
     }
@@ -106,9 +110,13 @@ class ControlsManager {
 
   private async handleNextTrack(): Promise<void> {
     try {
-      await window.electronAPI.nextTrack();
-      this.isPlaying = true;
-      this.updatePlayPauseIcon();
+      const result = await window.electronAPI.nextTrack();
+      if (result && typeof result === 'object' && 'success' in result && result.success) {
+        this.isPlaying = true;
+        this.updatePlayPauseIcon();
+      } else {
+        console.warn('Next track returned error:', result);
+      }
     } catch (error) {
       console.error('Next track failed:', error);
     }
@@ -116,9 +124,13 @@ class ControlsManager {
 
   private async handlePreviousTrack(): Promise<void> {
     try {
-      await window.electronAPI.previousTrack();
-      this.isPlaying = true;
-      this.updatePlayPauseIcon();
+      const result = await window.electronAPI.previousTrack();
+      if (result && typeof result === 'object' && 'success' in result && result.success) {
+        this.isPlaying = true;
+        this.updatePlayPauseIcon();
+      } else {
+        console.warn('Previous track returned error:', result);
+      }
     } catch (error) {
       console.error('Previous track failed:', error);
     }

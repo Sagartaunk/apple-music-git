@@ -1,8 +1,8 @@
 import { app } from 'electron';
 
 /**
- * Production-safe logging utility
- * Suppresses debug logs in production builds while preserving warnings and errors
+ * Production-safe logging utility with consistent prefixes
+ * Automatically suppresses debug logs in packaged builds
  */
 class Logger {
   private isDevelopment: boolean;
@@ -16,7 +16,7 @@ class Logger {
    */
   log(...args: unknown[]): void {
     if (this.isDevelopment) {
-      console.log(...args);
+      console.log('[App 📝]', ...args);
     }
   }
 
@@ -24,21 +24,30 @@ class Logger {
    * Log warnings (always shown)
    */
   warn(...args: unknown[]): void {
-    console.warn(...args);
+    console.warn('[App ⚠️ ]', ...args);
   }
 
   /**
    * Log errors (always shown)
    */
   error(...args: unknown[]): void {
-    console.error(...args);
+    console.error('[App ❌]', ...args);
   }
 
   /**
    * Log information (always shown)
    */
   info(...args: unknown[]): void {
-    console.info(...args);
+    console.info('[App ℹ️ ]', ...args);
+  }
+
+  /**
+   * Log success messages (only in development)
+   */
+  success(...args: unknown[]): void {
+    if (this.isDevelopment) {
+      console.log('[App ✅]', ...args);
+    }
   }
 }
 

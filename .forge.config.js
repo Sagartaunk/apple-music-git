@@ -84,7 +84,7 @@ module.exports = {
       config: {
         mainConfig: './webpack.main.config.js',
         // Webpack 5 optimizations
-        devContentSecurityPolicy: "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:",
+        devContentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self'",
         renderer: {
           config: './webpack.renderer.config.js',
           entryPoints: [

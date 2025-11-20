@@ -22,13 +22,13 @@ const SUPPORTED_REGIONS = [
 ];
 
 /**
- * Detect user's region using IP geolocation
- * Fallback to US if detection fails
+ * Detect user's region using IP geolocation with fallback chain
+ * Tries multiple services: ipapi.co → ip-api.com → ipinfo.io
+ * Always returns valid region (defaults to US if all fail)
  */
 export async function detectRegion(): Promise<RegionInfo> {
+  // Service 1: ipapi.co (no API key required)
   try {
-    // Try to detect region using a free geolocation API
-    // Using ipapi.co as it doesn't require API key for basic usage
     const response = await fetch('https://ipapi.co/json/', {
       method: 'GET',
       headers: {
@@ -36,31 +36,85 @@ export async function detectRegion(): Promise<RegionInfo> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`Region detection failed: ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      const country = data.country_code || 'US';
+      const isSupported = SUPPORTED_REGIONS.includes(country);
+
+      return {
+        country,
+        isSupported,
+        appleMusicUrl: getAppleMusicUrl(country),
+        message: isSupported
+          ? `Apple Music is available in ${country} (via ipapi.co)`
+          : `Apple Music may not be available in ${country}. Using US region.`,
+      };
     }
-
-    const data = await response.json();
-    const country = data.country_code || 'US';
-    const isSupported = SUPPORTED_REGIONS.includes(country);
-
-    return {
-      country,
-      isSupported,
-      appleMusicUrl: getAppleMusicUrl(country),
-      message: isSupported
-        ? `Apple Music is available in ${country}`
-        : `Apple Music may not be available in ${country}. Using US region.`,
-    };
   } catch (error) {
-    // Fallback to US region if detection fails
-    return {
-      country: 'US',
-      isSupported: true,
-      appleMusicUrl: 'https://music.apple.com/us/',
-      message: `Region detection failed. Using US region. Error: ${error}`,
-    };
+    console.warn('ipapi.co failed:', error);
   }
+
+  // Service 2: ip-api.com (fallback)
+  try {
+    const response = await fetch('http://ip-api.com/json/', {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'AppleMusicElectron/1.0',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const country = data.countryCode || 'US';
+      const isSupported = SUPPORTED_REGIONS.includes(country);
+
+      return {
+        country,
+        isSupported,
+        appleMusicUrl: getAppleMusicUrl(country),
+        message: isSupported
+          ? `Apple Music is available in ${country} (via ip-api.com)`
+          : `Apple Music may not be available in ${country}. Using US region.`,
+      };
+    }
+  } catch (error) {
+    console.warn('ip-api.com failed:', error);
+  }
+
+  // Service 3: ipinfo.io (last resort)
+  try {
+    const response = await fetch('https://ipinfo.io/json', {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'AppleMusicElectron/1.0',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const country = data.country || 'US';
+      const isSupported = SUPPORTED_REGIONS.includes(country);
+
+      return {
+        country,
+        isSupported,
+        appleMusicUrl: getAppleMusicUrl(country),
+        message: isSupported
+          ? `Apple Music is available in ${country} (via ipinfo.io)`
+          : `Apple Music may not be available in ${country}. Using US region.`,
+      };
+    }
+  } catch (error) {
+    console.warn('ipinfo.io failed:', error);
+  }
+
+  // All services failed - use US as default
+  return {
+    country: 'US',
+    isSupported: true,
+    appleMusicUrl: 'https://music.apple.com/us/',
+    message: 'All region detection services failed. Using US region as default.',
+  };
 }
 
 /**
